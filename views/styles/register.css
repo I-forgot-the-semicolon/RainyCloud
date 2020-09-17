@@ -1,0 +1,16 @@
+body, html{
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.bg
+{
+  background-color: #7356d5;
+  height: 100%;
+  width: 55%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
