@@ -1,7 +1,5 @@
 const bcrypt = require("bcrypt");
 
-
-
 function isLogged(req)
 {
     if(req.session.uid && req.session.email)
@@ -21,8 +19,10 @@ function checkPassword(User, req, res)
 {
     User.findOne({email: req.body.email}, async (err, user) =>
     {
+        if(err) throw err;
         try 
         {
+            console.log("Trying to login");
             if(user && await bcrypt.compare(req.body.password, user.password) == true)
             {
                 req.session.uid = user.id;
@@ -36,6 +36,7 @@ function checkPassword(User, req, res)
         }
         catch (error) 
         {
+            console.log("Error login");
             res.send(error);
         }      
     }); 
