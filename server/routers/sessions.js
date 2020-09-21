@@ -1,13 +1,22 @@
 const express = require("express");
 const fileHelper = require("../utils/fileHelper");
 const sessionHelper = require("../utils/sessionHelper");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const router = express.Router();
 
 
-router.get("/register", function(req, res)
+router.post("/checkSession", async function(req, res)
 {
-       res.render("pages/register"); 
+    if(req.body.token)
+    {
+        const isLogged = sessionHelper.isLogged(req.body.token);
+        res.json({message: isLogged});
+    }
+    else
+    {
+        res.json({message: "lost token"});
+    }
 });
 
 router.post("/register", async (req, res) => 
@@ -46,15 +55,16 @@ router.post("/register", async (req, res) =>
 
 router.post("/login", async (req, res) =>
 {
-    if(req.body.email != null && req.body.password != null)
+    if(req.body.email && req.body.password)
     {   
-        if(!sessionHelper.isLogged(req))
-        {   
+        let token = req.body.token ? req.body.token : "empty";
+        if(sessionHelper.isLogged(token)== false)
+        {
             sessionHelper.checkPassword(User, req, res);
         }
         else
         {
-            res.json({message: "Already Logged!", session: req.session});  
+            res.json({message: "Already Logged!"});  
         }
     }
     else
@@ -64,16 +74,16 @@ router.post("/login", async (req, res) =>
 });
 
 
-router.post("/logout", function(req, res)
+router.post("/logout", sessionHelper.loginRequired ,function(req, res)
 {
     if(sessionHelper.isLogged(req))
     {
         req.session.destroy(() => {console.log("Session destroyed");});
-        res.send("Destroyed session");
+        res.json({message: "ok"});
     }
     else
     {
-        res.send("Invalid");
+        res.json({message: "bad request"});
     }
 });
 
